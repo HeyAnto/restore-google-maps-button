@@ -1,25 +1,30 @@
 {
   "manifest_version": 3,
-  "name": "Restore Maps Button",
+  "name": "Restore Google Maps Button",
   "version": "1.0.0",
-  "description": "Restores the Maps button on Google search results pages.",
+  "description": "Restores the Maps button in Google search results.",
   "permissions": [],
   "action": {
+    "default_icon": "icons/icon.svg",
     "default_popup": "ui/popup.html",
-    "default_title": "Restore Maps Button"
+    "default_title": "Restore Google Maps Button"
   },
+
   "content_scripts": [
     {
-      "matches": ["<all_urls>"],
+      "matches": ["http://*/*", "https://*/*"],
       "include_globs": ["*://www.google.*/search*"],
       "js": ["scripts/content.js"],
       "run_at": "document_start"
     }
   ],
+
   "browser_specific_settings": {
     "gecko": {
-      "id": "google-maps-button-restorer@example.com",
-      "strict_min_version": "110.0"
+      "strict_min_version": "140.0",
+      "data_collection_permissions": {
+        "required": ["none"]
+      }
     }
   }
 }
