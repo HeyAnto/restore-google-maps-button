@@ -1,45 +1,48 @@
 (() => {
-  // Configuration
+  // Constants
   const ITEM_ID = "gmap-btn-extension-item";
   const LINK_ID = "gmap-btn-extension-link";
+  const NO_FLASH_STYLE_ID = "gmap-btn-no-flash-style";
   const IMAGES_SELECTOR =
     'a[href*="tbm=isch"], a[href*="udm=2"], [role="link"][href*="tbm=isch"], [role="link"][href*="udm=2"]';
   const ACTIVE_SELECTOR =
     '[aria-current="page"], [aria-selected="true"], .hdtb-msel';
+  const LINK_SELECTOR = 'a[href], [role="link"][href]';
 
-  // URL & Page Detection
+  let isScheduled = false;
+  let isObserverInitialized = false;
+
+  // Page detection
   function isGoogleSearchPage() {
-    // Check Google search
     return (
       location.hostname.includes("google.") &&
       location.pathname.startsWith("/search")
     );
   }
 
-  function getSearchParams() {
-    // Cache params
-    return new URLSearchParams(location.search);
-  }
-
+  // Get query
   function getSearchQuery() {
-    // Extract search term
-    return getSearchParams().get("q");
+    return new URLSearchParams(location.search).get("q");
   }
 
-  function isImagesSearchMode() {
-    // Check image mode
-    const params = getSearchParams();
-    return params.get("tbm") === "isch" || params.get("udm") === "2";
+  // Hide native maps
+  function hideNativeMaps() {
+    if (document.getElementById(NO_FLASH_STYLE_ID)) return;
+    const style = document.createElement("style");
+    style.id = NO_FLASH_STYLE_ID;
+    style.textContent = `#hdtb-msb a[href*="maps.google."]:not(#${LINK_ID}),
+      #hdtb-msb a[href*="/maps"]:not(#${LINK_ID}),
+      [role="navigation"] a[href*="maps.google."]:not(#${LINK_ID}),
+      [role="navigation"] a[href*="/maps"]:not(#${LINK_ID}),
+      #hdtb-msb [role="link"][href*="maps.google."]:not(#${LINK_ID}),
+      #hdtb-msb [role="link"][href*="/maps"]:not(#${LINK_ID}),
+      [role="navigation"] [role="link"][href*="maps.google."]:not(#${LINK_ID}),
+      [role="navigation"] [role="link"][href*="/maps"]:not(#${LINK_ID}) { display: none !important; }`;
+    (document.head || document.documentElement).appendChild(style);
   }
 
-  function getMapsUrl(query) {
-    // Build maps URL
-    return `https://www.google.com/maps/search/${encodeURIComponent(query)}`;
-  }
-
-  // DOM Navigation
-  function findNavigationContainer() {
-    // Locate navigation bar
+  // Find nav container
+  function findNav() {
     return (
       document.querySelector("#hdtb-msb") ||
       document.querySelector('[role="navigation"] div[role="list"]') ||
@@ -47,13 +50,8 @@
     );
   }
 
-  function getItemLink(item) {
-    // Get link element
-    return item.querySelector('a[href], [role="link"][href]');
-  }
-
-  function findNavItemFromChild(nav, child) {
-    // Find parent list item
+  // Find parent item
+  function findParentItem(nav, child) {
     let current = child;
     while (current && current.parentElement !== nav) {
       current = current.parentElement;
@@ -61,131 +59,119 @@
     return current?.parentElement === nav ? current : null;
   }
 
+  // Find images
   function findImagesItem(nav) {
-    // Locate images button
     const imagesLink = nav.querySelector(IMAGES_SELECTOR);
-    const item = findNavItemFromChild(nav, imagesLink);
-    if (item) return item;
+    if (imagesLink) return findParentItem(nav, imagesLink);
 
-    if (!isImagesSearchMode()) return null;
-
-    const activeItem = nav.querySelector(ACTIVE_SELECTOR);
-    return findNavItemFromChild(nav, activeItem);
-  }
-
-  function findTemplateItem(nav, imagesItem) {
-    // Find button template
-    if (imagesItem?.querySelector('a[href], [role="link"][href]')) {
-      return imagesItem;
+    const params = new URLSearchParams(location.search);
+    if (params.get("tbm") === "isch" || params.get("udm") === "2") {
+      const activeItem = nav.querySelector(ACTIVE_SELECTOR);
+      if (activeItem) return findParentItem(nav, activeItem);
     }
-
-    const imagesLink = nav.querySelector(IMAGES_SELECTOR);
-    const byImagesLink = findNavItemFromChild(nav, imagesLink);
-    if (byImagesLink?.querySelector('a[href], [role="link"][href]')) {
-      return byImagesLink;
-    }
-
-    return Array.from(nav.children).find(
-      (child) => child.nodeType === Node.ELEMENT_NODE && getItemLink(child),
-    );
+    return null;
   }
 
-  // DOM Manipulation
-  function clearIds(root) {
-    // Remove IDs recursively
-    root.removeAttribute("id");
-    root.querySelectorAll("[id]").forEach((el) => el.removeAttribute("id"));
-  }
-
-  function clearActiveState(root) {
-    // Deselect element
-    root.querySelectorAll(ACTIVE_SELECTOR).forEach((el) => {
+  // Clean item
+  function cleanItem(item) {
+    item.removeAttribute("id");
+    item.querySelectorAll("[id]").forEach((el) => el.removeAttribute("id"));
+    item.querySelectorAll(ACTIVE_SELECTOR).forEach((el) => {
       el.removeAttribute("aria-current");
       el.setAttribute("aria-selected", "false");
       el.classList.remove("hdtb-msel");
     });
-
-    if (root.classList.contains("hdtb-msel")) {
-      root.classList.remove("hdtb-msel");
-    }
+    if (item.classList.contains("hdtb-msel"))
+      item.classList.remove("hdtb-msel");
   }
 
-  function setLinkLabel(link, text) {
-    // Update button text
-    const labelNode =
-      link.querySelector("span[aria-hidden], span") ||
-      link.querySelector("div");
-    (labelNode || link).textContent = text;
-  }
-
-  function createMapsItem(templateItem, query) {
-    // Build maps button
-    const item = templateItem.cloneNode(true);
-    clearIds(item);
-    clearActiveState(item);
+  // Create maps item
+  function createMapsItem(template, query) {
+    const item = template.cloneNode(true);
+    cleanItem(item);
     item.id = ITEM_ID;
 
-    const link = getItemLink(item);
+    const link = item.querySelector(LINK_SELECTOR);
     if (!link) return null;
 
     link.id = LINK_ID;
-    link.href = getMapsUrl(query);
+    link.href = `https://www.google.com/maps/search/${encodeURIComponent(query)}`;
     link.target = "_blank";
     link.rel = "noopener noreferrer";
     link.setAttribute("aria-label", "Maps");
-    setLinkLabel(link, "Maps");
+    (
+      link.querySelector("span[aria-hidden], span") ||
+      link.querySelector("div") ||
+      link
+    ).textContent = "Maps";
 
     return item;
   }
 
-  function placeMapsItem(nav, item) {
-    // Insert after images
-    const imagesItem = findImagesItem(nav);
-    if (!imagesItem) return;
-
-    if (imagesItem.nextSibling !== item) {
-      nav.insertBefore(item, imagesItem.nextSibling);
-    }
+  // Remove maps buttons
+  function removeMapsButtons(nav) {
+    nav
+      .querySelectorAll(
+        'a[href*="maps.google."], a[href*="/maps"], [role="link"][href*="maps.google."], [role="link"][href*="/maps"]',
+      )
+      .forEach((link) => {
+        if (link.id !== LINK_ID) {
+          const parent = link.closest('[role="listitem"], li, div');
+          (parent || link).remove();
+        }
+      });
   }
 
+  // Update maps button
   function updateMapsButton() {
-    // Main logic
     if (!isGoogleSearchPage()) return;
-
     const query = getSearchQuery();
     if (!query) return;
 
-    const nav = findNavigationContainer();
+    const nav = findNav();
     if (!nav) return;
 
+    removeMapsButtons(nav);
     const imagesItem = findImagesItem(nav);
     if (!imagesItem) return;
 
-    const existingLink = document.getElementById(LINK_ID);
     const existingItem = document.getElementById(ITEM_ID);
+    const existingLink = document.getElementById(LINK_ID);
 
+    // Update URL
     if (existingLink && existingItem) {
-      existingLink.href = getMapsUrl(query);
-      placeMapsItem(nav, existingItem);
+      const mapsUrl = `https://www.google.com/maps/search/${encodeURIComponent(query)}`;
+      if (existingLink.href !== mapsUrl) existingLink.href = mapsUrl;
+      if (imagesItem.nextSibling !== existingItem) {
+        nav.insertBefore(existingItem, imagesItem.nextSibling);
+      }
       return;
     }
 
-    const templateItem = findTemplateItem(nav, imagesItem);
-    if (!templateItem) return;
+    // Create new item
+    let template = null;
+    if (imagesItem.querySelector(LINK_SELECTOR)) {
+      template = imagesItem;
+    } else {
+      for (const child of nav.children) {
+        if (
+          child.nodeType === Node.ELEMENT_NODE &&
+          child.querySelector(LINK_SELECTOR)
+        ) {
+          template = child;
+          break;
+        }
+      }
+    }
 
-    const mapsItem = createMapsItem(templateItem, query);
-    if (!mapsItem) return;
-
-    placeMapsItem(nav, mapsItem);
+    if (!template) return;
+    const newItem = createMapsItem(template, query);
+    if (newItem) nav.insertBefore(newItem, imagesItem.nextSibling);
   }
 
-  // Event Handling
-  let isScheduled = false;
-
+  // Schedule update
   function scheduleUpdate() {
-    // Debounce updates
     if (isScheduled) return;
-
     isScheduled = true;
     requestAnimationFrame(() => {
       isScheduled = false;
@@ -193,15 +179,25 @@
     });
   }
 
-  const observer = new MutationObserver(scheduleUpdate);
-  observer.observe(document.documentElement, {
-    childList: true,
-    subtree: true,
-  });
+  // Watch mutations
+  function initObserver() {
+    if (isObserverInitialized) return;
+    isObserverInitialized = true;
+    new MutationObserver(scheduleUpdate).observe(document.documentElement, {
+      childList: true,
+      subtree: true,
+    });
+  }
 
-  window.addEventListener("popstate", updateMapsButton);
-  window.addEventListener("hashchange", updateMapsButton);
-  window.addEventListener("DOMContentLoaded", updateMapsButton);
+  // Initialize
+  hideNativeMaps();
+  updateMapsButton();
+  initObserver();
 
-  scheduleUpdate();
+  window.addEventListener("popstate", scheduleUpdate);
+  window.addEventListener("hashchange", scheduleUpdate);
+
+  if (document.readyState === "loading") {
+    window.addEventListener("DOMContentLoaded", scheduleUpdate, { once: true });
+  }
 })();
