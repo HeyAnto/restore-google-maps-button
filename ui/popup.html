@@ -1,26 +1,28 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Restore Google Maps Button</title>
   <link rel="stylesheet" href="popup.css" />
 </head>
 
 <body>
-  <section class="hd">
-    <h1>Google Maps Button</h1>
-  </section>
+  <h1 class="t-white t-center">Google Maps Button</h1>
 
-  <section class="lnk">
-    <a class="btn" href="https://ko-fi.com/heyanto" target="_blank">
-      <img src="./assets/heart-icon.svg" alt="Heart Icon">
-      <p>Donate</p>
-    </a>
+  <section class="flex flex-col gap-12">
+    <div class="flex gap-12">
+      <a class="btn btn-primary" href="https://ko-fi.com/heyanto">
+        <img class="btn-icon" src="./assets/heart-icon.svg" alt="Heart Icon">
+        <p>Donate</p>
+      </a>
 
-    <a class="btn" href="https://github.com" target="_blank">
-      <img src="./assets/github-icon.svg" alt="GitHub Icon">
-      <p>GitHub</p>
-    </a>
+      <a class="btn btn-secondary" href="https://github.com/HeyAnto/restore-google-maps-button">
+        <img class="btn-icon" src="./assets/github-icon.svg" alt="GitHub Icon">
+        <p>GitHub</p>
+      </a>
+    </div>
   </section>
 
   <script type="module" src="popup.js"></script>

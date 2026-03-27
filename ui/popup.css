@@ -8,81 +8,110 @@
 
 :root {
   --bg: #0f0f0f;
-  --panel: #292929;
-  --panel-hover: #3d3d3d;
-  --text: #e6e6e6;
-  --title: #ffffff;
+  --light: #e6e6e6;
+  --muted: #8f8f8f;
+  --blue: #0a54c2;
+  --blue-muted: #cfe1fc;
 }
+
+/* Layout */
+
+.flex {
+  display: flex;
+}
+
+.flex-col {
+  flex-direction: column;
+}
+
+.w-full {
+  width: 100%;
+}
+
+.gap-12 {
+  gap: 12px;
+}
+
+/* Typography */
+
+h1 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 30px;
+}
+
+p {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 22px;
+}
+
+.t-center {
+  text-align: center;
+}
+
+.t-white {
+  color: var(--light);
+}
+
+.t-muted {
+  color: var(--muted);
+}
+
+/* Global Styles */
 
 * {
   box-sizing: border-box;
+  font-family: "BDO Grotesk", Arial, sans-serif;
 }
 
 body {
   width: 380px;
-  margin: 0;
-  font-family: "BDO Grotesk", Arial, sans-serif;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  padding: 20px;
-  gap: 20px;
-  background: var(--bg);
-}
-
-h1 {
-  font-size: 20px;
-  font-weight: 700;
-  color: var(--title);
-  text-align: center;
   margin: 0;
+  padding: 18px;
+  gap: 18px;
+  background-color: var(--bg);
 }
 
-p {
-  margin: 0px;
-  font-size: 14px;
-  font-weight: 400;
-  color: var(--text);
-}
-
-section {
-  width: 100%;
-  display: flex;
-}
-
-.hd {
-  flex-direction: column;
-}
-
-.lnk {
-  flex-direction: row;
-  gap: 20px;
-}
+/* Buttons */
 
 .btn {
   width: 100%;
   display: flex;
-  flex-direction: row;
-  justify-content: center;
-  align-items: center;
   padding: 12px 16px;
   gap: 6px;
-  background-color: var(--panel);
-  font-size: 16px;
-  font-weight: 400;
-  color: var(--text);
+  border-radius: 100px;
+
   text-decoration: none;
-  transition: background-color 0.2s ease;
-  border: none;
-  cursor: pointer;
-  border-radius: 4px;
+  transition: all 0.2s ease;
 }
 
-.btn:hover {
-  background-color: var(--panel-hover);
-}
-
-.btn img {
+.btn-icon {
   width: 22px;
   height: 22px;
+}
+
+.btn-primary {
+  justify-content: center;
+  color: var(--blue);
+  background-color: var(--blue-muted);
+}
+
+.btn-primary:hover {
+  background-color: #e7f0fe;
+}
+
+.btn-secondary {
+  justify-content: center;
+  color: var(--muted);
+  border: solid 1px var(--muted);
+  cursor: pointer;
+}
+
+.btn-secondary:hover {
+  filter: brightness(1.6);
 }
