@@ -13,15 +13,24 @@
 
   <section class="flex flex-col gap-12">
     <div class="flex gap-12">
-      <a class="btn btn-primary" href="https://ko-fi.com/heyanto">
+      <a class="btn btn-primary" href="https://ko-fi.com/heyanto" tabindex="0">
         <img class="btn-icon" src="./assets/heart-icon.svg" alt="Heart Icon">
         <p>Donate</p>
       </a>
 
-      <a class="btn btn-secondary" href="https://github.com/HeyAnto/restore-google-maps-button">
+      <a class="btn btn-secondary" href="https://github.com/HeyAnto/restore-google-maps-button" tabindex="0">
         <img class="btn-icon" src="./assets/github-icon.svg" alt="GitHub Icon">
         <p>GitHub</p>
       </a>
+    </div>
+
+    <div id="extensionToggleContainer" class="btn btn-tertiary" role="button" tabindex="0"
+      aria-controls="extensionToggle" aria-label="Toggle extension on or off">
+      <p class="t-white">Extension Enabled</p>
+      <label class="tg" for="extensionToggle">
+        <input id="extensionToggle" type="checkbox" tabindex="-1" aria-hidden="true">
+        <span class="tg-ui" aria-hidden="true"></span>
+      </label>
     </div>
   </section>
 

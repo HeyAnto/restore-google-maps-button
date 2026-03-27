@@ -12,6 +12,7 @@
   --muted: #8f8f8f;
   --blue: #0a54c2;
   --blue-muted: #cfe1fc;
+  --focus: #7ec8ff;
 }
 
 /* Layout */
@@ -82,11 +83,12 @@ body {
 .btn {
   width: 100%;
   display: flex;
-  padding: 12px 16px;
+  padding: 12px 18px;
   gap: 6px;
   border-radius: 100px;
 
   text-decoration: none;
+  cursor: pointer;
   transition: all 0.2s ease;
 }
 
@@ -105,6 +107,16 @@ body {
   background-color: #e7f0fe;
 }
 
+.btn-primary:focus-visible,
+.btn-primary:active {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.btn-primary:active {
+  opacity: 0.9;
+}
+
 .btn-secondary {
   justify-content: center;
   color: var(--muted);
@@ -114,4 +126,97 @@ body {
 
 .btn-secondary:hover {
   filter: brightness(1.6);
+}
+
+.btn-secondary:focus-visible,
+.btn-secondary:active {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.btn-secondary:active {
+  opacity: 0.9;
+}
+
+.btn-tertiary {
+  justify-content: space-between;
+}
+
+.btn-tertiary:hover {
+  background-color: #1a1a1a;
+}
+
+.btn-tertiary:focus-visible,
+.btn-tertiary:active {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.btn-tertiary:active {
+  opacity: 0.9;
+}
+
+[role="button"]:focus-visible,
+.excluded-item:focus-visible,
+a:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+a:has(+ *):focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+/* Inputs */
+
+.tg {
+  position: relative;
+  display: inline-flex;
+  width: 44px;
+  height: 22px;
+  cursor: pointer;
+}
+
+.tg input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+.tg-ui {
+  position: absolute;
+  inset: 0;
+  border-radius: 100px;
+  background: var(--muted);
+  transition: background-color 0.2s ease;
+}
+
+.tg-ui::before {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 18px;
+  height: 18px;
+  border-radius: 100px;
+  background: var(--light);
+  transition: transform 0.2s ease;
+}
+
+.tg input:checked + .tg-ui {
+  background: var(--blue);
+}
+
+.tg input:checked + .tg-ui::before {
+  background: var(--light);
+  transform: translateX(22px);
+}
+
+.tg input:focus-visible + .tg-ui {
+  box-shadow:
+    0 0 0 2px var(--bg),
+    0 0 0 4px var(--focus);
 }

@@ -11,6 +11,9 @@
 
   let isScheduled = false;
   let isObserverInitialized = false;
+  let extensionEnabled = true;
+  let mutationObserver = null;
+  let scheduleUpdateHandler = null;
 
   // Page detection
   function isGoogleSearchPage() {
@@ -179,25 +182,88 @@
     });
   }
 
+  // Stop observer
+  function stopObserver() {
+    if (mutationObserver) {
+      mutationObserver.disconnect();
+      mutationObserver = null;
+    }
+    if (scheduleUpdateHandler) {
+      window.removeEventListener("popstate", scheduleUpdateHandler);
+      window.removeEventListener("hashchange", scheduleUpdateHandler);
+      scheduleUpdateHandler = null;
+    }
+    isObserverInitialized = false;
+  }
+
   // Watch mutations
   function initObserver() {
     if (isObserverInitialized) return;
     isObserverInitialized = true;
-    new MutationObserver(scheduleUpdate).observe(document.documentElement, {
+    mutationObserver = new MutationObserver(scheduleUpdate);
+    mutationObserver.observe(document.documentElement, {
       childList: true,
       subtree: true,
     });
   }
 
   // Initialize
-  hideNativeMaps();
-  updateMapsButton();
-  initObserver();
+  async function init() {
+    // Load state
+    try {
+      const result = await browser.storage.local.get("extensionEnabled");
+      extensionEnabled = result.extensionEnabled !== false;
+    } catch (error) {
+      // Graceful fallback
+      extensionEnabled = true;
+    }
 
-  window.addEventListener("popstate", scheduleUpdate);
-  window.addEventListener("hashchange", scheduleUpdate);
+    // Conditional init
+    if (extensionEnabled) {
+      hideNativeMaps();
+      updateMapsButton();
+      initObserver();
 
-  if (document.readyState === "loading") {
-    window.addEventListener("DOMContentLoaded", scheduleUpdate, { once: true });
+      scheduleUpdateHandler = scheduleUpdate;
+      window.addEventListener("popstate", scheduleUpdateHandler);
+      window.addEventListener("hashchange", scheduleUpdateHandler);
+
+      if (document.readyState === "loading") {
+        window.addEventListener("DOMContentLoaded", scheduleUpdate, {
+          once: true,
+        });
+      }
+    }
   }
+
+  // Popup messages
+  browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    if (message.action === "extensionStatusChanged") {
+      extensionEnabled = message.enabled;
+
+      if (extensionEnabled) {
+        // Enable extension
+        stopObserver();
+        hideNativeMaps();
+        updateMapsButton();
+        initObserver();
+
+        scheduleUpdateHandler = scheduleUpdate;
+        window.addEventListener("popstate", scheduleUpdateHandler);
+        window.addEventListener("hashchange", scheduleUpdateHandler);
+      } else {
+        // Disable extension
+        stopObserver();
+
+        const mapsItem = document.getElementById(ITEM_ID);
+        if (mapsItem) mapsItem.remove();
+
+        const styleElement = document.getElementById(NO_FLASH_STYLE_ID);
+        if (styleElement) styleElement.remove();
+      }
+    }
+  });
+
+  // Start init
+  init();
 })();
