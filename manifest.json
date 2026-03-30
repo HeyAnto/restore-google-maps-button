@@ -3,7 +3,11 @@
   "name": "Restore Google Maps Button",
   "version": "1.1.0",
   "description": "Restores the Maps button in Google search results.",
+  "author": "Antonin Sioly",
+
   "permissions": ["storage"],
+  "host_permissions": ["*://www.google.*/*"],
+
   "action": {
     "default_icon": "icons/icon.svg",
     "default_popup": "ui/popup.html",
@@ -12,7 +16,7 @@
 
   "content_scripts": [
     {
-      "matches": ["http://*/*", "https://*/*"],
+      "matches": ["*://www.google.*/*"],
       "include_globs": ["*://www.google.*/search*"],
       "js": ["scripts/content.js"],
       "run_at": "document_start"
@@ -21,6 +25,7 @@
 
   "browser_specific_settings": {
     "gecko": {
+      "id": "{49e1d5c5-c5b5-4c5b-8b5b-5b5b5b5b5b5b}",
       "strict_min_version": "140.0",
       "data_collection_permissions": {
         "required": ["none"]
