@@ -54,8 +54,6 @@
     "https://www.google.sm/search*"
   ],
 
-  "default_locale": "en",
-
   "action": {
     "default_icon": "icons/icon.svg",
     "default_popup": "ui/popup.html",
