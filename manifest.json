@@ -55,8 +55,8 @@
   ],
 
   "action": {
-    "default_icon": "icons/icon.svg",
-    "default_popup": "ui/popup.html",
+    "default_icon": "assets/icons/icon.svg",
+    "default_popup": "src/ui/popup.html",
     "default_title": "Restore Google Maps Button"
   },
 
@@ -109,7 +109,7 @@
         "https://www.google.sk/search*",
         "https://www.google.sm/search*"
       ],
-      "js": ["scripts/content.js"],
+      "js": ["src/scripts/content.js"],
       "run_at": "document_start"
     }
   ],
