@@ -1,6 +1,7 @@
 document.addEventListener("DOMContentLoaded", async () => {
   const extensionToggle = document.getElementById("extensionToggle");
   const toggleContainer = document.getElementById("extensionToggleContainer");
+  const toggleLabel = document.getElementById("extensionToggleLabel");
   const focusableElements = document.querySelectorAll(
     "a.btn, [role='button'][tabindex='0']",
   );
@@ -31,6 +32,10 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // Click support
   toggleContainer.addEventListener("click", (event) => {
+    if (event.target === extensionToggle || event.target.closest("label")) {
+      return;
+    }
+
     if (event.target !== extensionToggle) {
       extensionToggle.click();
     }
@@ -65,7 +70,11 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // Update label
   function updateToggleLabel() {
-    const status = extensionToggle.checked ? "Enabled" : "Disabled";
-    toggleContainer.setAttribute("aria-pressed", extensionToggle.checked);
+    const isEnabled = extensionToggle.checked;
+    toggleLabel.textContent = isEnabled
+      ? "Extension Enabled"
+      : "Extension Disabled";
+    toggleContainer.setAttribute("aria-pressed", String(isEnabled));
+    toggleContainer.setAttribute("aria-checked", String(isEnabled));
   }
 });
