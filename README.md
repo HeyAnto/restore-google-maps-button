@@ -2,7 +2,7 @@
 
 <img src="./assets/img-readme.webp" alt="Restore Google Maps Button preview" width="100%">
 
-<a href="https://addons.mozilla.org/firefox/addon/restore-google-maps-button/" target="_blank" rel="noopener noreferrer"><img src="https://img.shields.io/badge/version-1.1.0-111111" alt="Version"></a>
+<a href="https://addons.mozilla.org/firefox/addon/restore-google-maps-button/" target="_blank" rel="noopener noreferrer"><img src="https://img.shields.io/badge/version-1.1.1-111111" alt="Version"></a>
 <a href="https://addons.mozilla.org/firefox/addon/restore-google-maps-button/" target="_blank" rel="noopener noreferrer"><img src="https://img.shields.io/badge/Firefox-Add--ons-FF7139?logo=firefox-browser&logoColor=white" alt="Firefox Add-ons"></a>
 <a href="https://ko-fi.com/heyanto" target="_blank" rel="noopener noreferrer"><img src="https://img.shields.io/badge/Buy%20me%20a%20coffee-Ko--fi-ff5f5f?logo=ko-fi&logoColor=white" alt="Buy me a coffee on Ko-fi"></a>
 
